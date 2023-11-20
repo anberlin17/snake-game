@@ -34,11 +34,12 @@ header {
 
 main {
   display: grid;
-  grid-template-rows: auto auto minmax(80vw, 1fr) 1fr;
+  grid-template-rows: auto auto 1fr;
   flex-grow: 1;
   max-height: 100%;
 
   @media (pointer: none), (pointer: coarse) {
+    grid-template-rows: auto auto minmax(80vw, 1fr) 1fr;
     gap: 1rem;
     padding: 1rem;
   }
