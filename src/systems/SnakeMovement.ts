@@ -1,13 +1,14 @@
 import ECS from '../ECS'
 import System from '../modules/System'
 import { SnakeBodyComponent } from '../components/SnakeBody'
+import Game from '../main'
 
 class SnakeMovement extends System {
   constructor() {
     super()
   }
 
-  update() {
+  update(game: Game) {
     const snake = ECS.queryEntity(['SnakeBody'])
     if (!snake) {
       return

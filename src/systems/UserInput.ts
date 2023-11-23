@@ -70,7 +70,7 @@ class UserInput extends System {
     }
   }
 
-  update(_: Game) {
+  update(game: Game) {
     const entity = ECS.queryEntity(['SnakeBody'])
     if (!entity) {
       return

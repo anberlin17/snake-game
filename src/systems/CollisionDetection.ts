@@ -3,7 +3,6 @@ import System from '../modules/System'
 import { SnakeBodyComponent } from '../components/SnakeBody'
 import components from '../components'
 import Game from '../main'
-import { GAME_FIELD_SIZE } from '../settings'
 
 class CollisionDetection extends System {
   constructor() {
@@ -23,7 +22,7 @@ class CollisionDetection extends System {
       ECS.removeEntity(food)
       snake.addComponent(components.SnakeGrowUp())
 
-      game.setScore(game.score + 1)
+      game.updateScore(game.score + 1)
     }
 
     // Detect collision with the body
@@ -35,7 +34,7 @@ class CollisionDetection extends System {
     }
 
     // Detect collision with the wall
-    if (head.x < 0 || head.x >= GAME_FIELD_SIZE || head.y < 0 || head.y >= GAME_FIELD_SIZE) {
+    if (head.x < 0 || head.x >= game.fieldSize || head.y < 0 || head.y >= game.fieldSize) {
       game.stop()
     }
   }

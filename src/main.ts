@@ -1,24 +1,38 @@
 import ECS from './ECS'
 import Systems from './systems'
 import Components from './components'
-import { GAME_FIELD_SIZE, GAME_FPS } from './settings'
+import GUI from './modules/GUI'
 
 import './style.scss'
 
 export default class Game {
   ctx: CanvasRenderingContext2D
-  fieldSize: number
-  requestId: number
-  prevTimestamp: number
-  score: number
-  highestScore: number
 
-  constructor() {
-    this.prevTimestamp = 0
+  GUI: GUI
+
+  #requestId: number
+  #fps: number
+  #tickInterval: number
+  #prevTimestamp: number
+
+  paused: boolean
+  fieldSize: number
+  score: number
+  highScore: number
+
+  constructor({ fps = 15, size = 21 } = {}) {
+    this.#fps = fps
+    this.#tickInterval = 1000 / this.#fps
+    this.#prevTimestamp = 0
+
+    this.GUI = new GUI()
+
+    this.paused = true
+    this.fieldSize = size
     this.score = 0
     this.start = this.start.bind(this)
 
-    this.setHighestScore(Number(localStorage.getItem('highestScore')) ?? 0)
+    this.updateHighScore(Number(localStorage.getItem('highScore')) ?? 0)
 
     let canvas = document.getElementById('canvas') as HTMLCanvasElement
     if (!canvas) {
@@ -37,8 +51,8 @@ export default class Game {
     this.ctx = canvas.getContext('2d')
 
     addEventListener('resize', () => {
-      const wh = Math.min(canvas.clientHeight, canvas.clientWidth)
-      this.ctx.canvas.width = this.ctx.canvas.height = wh * devicePixelRatio
+      this.ctx.canvas.height = canvas.clientHeight * devicePixelRatio
+      this.ctx.canvas.width = canvas.clientWidth * devicePixelRatio
     })
 
     dispatchEvent(new Event('resize'))
@@ -47,7 +61,7 @@ export default class Game {
   create() {
     const snake = ECS.createEntity()
 
-    const middle = Math.floor(GAME_FIELD_SIZE / 2)
+    const middle = Math.floor(this.fieldSize / 2)
     snake.addComponent(
       Components.SnakeBody([
         { x: middle, y: middle },
@@ -64,14 +78,15 @@ export default class Game {
     ECS.schedule.add(new Systems.SpawnFood())
     ECS.schedule.add(new Systems.SpawnSnake())
 
+    this.paused = false
     this.start()
   }
 
   start(timestamp = 0) {
-    this.requestId = requestAnimationFrame(this.start)
+    this.#requestId = requestAnimationFrame(this.start)
 
-    const elapsed = timestamp - this.prevTimestamp
-    if (elapsed < 1000 / GAME_FPS) {
+    const elapsed = timestamp - this.#prevTimestamp
+    if (elapsed < this.#tickInterval) {
       return
     }
 
@@ -81,20 +96,25 @@ export default class Game {
       system.update(this)
     }
 
-    this.prevTimestamp = timestamp
+    this.#prevTimestamp = timestamp
   }
 
   stop() {
-    if (this.score > this.highestScore) {
-      this.setHighestScore(this.score)
+    if (this.score > this.highScore) {
+      this.GUI.updateHighScore(this.score)
     }
 
     this.pause()
-    this.showGamePopup()
+    this.GUI.showGamePopup(() => {
+      this.GUI.removeGamePopup()
+      this.reset()
+      this.create()
+    })
   }
 
   pause() {
-    cancelAnimationFrame(this.requestId)
+    this.paused = true
+    cancelAnimationFrame(this.#requestId)
   }
 
   reset() {
@@ -103,52 +123,21 @@ export default class Game {
     ECS.entities.clear()
     ECS.schedule.clear()
 
-    this.setScore(0)
+    this.updateScore(0)
   }
 
-  removeGamePopup() {
-    const gameOverPopup = document.getElementById('gameOverPopup')
-    if (gameOverPopup) {
-      gameOverPopup.classList.remove('active')
-    }
-  }
-
-  showGamePopup() {
-    const gameOverPopup = document.getElementById('gameOverPopup')
-    if (gameOverPopup) {
-      gameOverPopup.classList.add('active')
-
-      const startGameButton = document.getElementById('startGameButton')
-      startGameButton.addEventListener('click', () => {
-        this.removeGamePopup()
-        this.reset()
-        this.create()
-      })
-    }
-  }
-
-  setScore(value: number) {
+  updateScore(value: number) {
     this.score = value
-    const gameScoreElement = document.getElementById('gameScore')
-
-    const score = this.score.toString()
-    if (gameScoreElement.textContent !== score) {
-      gameScoreElement.textContent = score
-    }
+    this.GUI.updateScore(value)
   }
 
-  setHighestScore(value: number) {
-    this.highestScore = value
-    localStorage.setItem('highestScore', this.highestScore.toString())
-
-    const highestScoreElement = document.getElementById('highestGameScore')
-    if (highestScoreElement) {
-      highestScoreElement.textContent = this.highestScore.toString()
-    }
+  updateHighScore(value: number) {
+    this.highScore = value
+    this.GUI.updateHighScore(value)
   }
 
   getCellSize() {
-    return this.ctx.canvas.width / GAME_FIELD_SIZE
+    return this.ctx.canvas.width / this.fieldSize
   }
 
   getCoordOfCell(x: number, y: number) {
@@ -160,7 +149,7 @@ export default class Game {
   }
 
   getRandomCell() {
-    return Math.round(Math.random() * (GAME_FIELD_SIZE - 1))
+    return Math.round(Math.random() * (this.fieldSize - 1))
   }
 
   getRandomPosition() {
@@ -171,5 +160,8 @@ export default class Game {
   }
 }
 
-const game = new Game()
+const game = new Game({
+  fps: 15,
+  size: 21
+})
 game.create()

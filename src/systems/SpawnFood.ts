@@ -35,15 +35,26 @@ class SpawnFood extends System {
     const entity = ECS.queryEntity(['Food']) || this.createFoodEntity(game)
     if (!entity) return
 
-    const cellSize = game.getCellSize()
     const position = entity.components.get('Position')
 
     const { x, y } = game.getCoordOfCell(position.x, position.y)
 
-    game.ctx.fillStyle = '#AAD372'
-    game.ctx.beginPath()
-    game.ctx.arc(x + cellSize / 2, y + cellSize / 2, cellSize * 0.4, 0, 2 * Math.PI)
-    game.ctx.fill()
+    const cellSize = game.getCellSize()
+    const borderSize = cellSize * 0.9
+    const blockSize = cellSize * 0.75
+
+    game.ctx.fillStyle = '#83372f'
+    game.ctx.strokeStyle = '#83372f'
+    game.ctx.lineWidth = 2
+
+    {
+      const offset = (cellSize - blockSize) / 2
+      game.ctx.fillRect(x + offset, y + offset, blockSize, blockSize)
+    }
+    {
+      const offset = (cellSize - borderSize) / 2
+      game.ctx.strokeRect(x + offset, y + offset, borderSize, borderSize)
+    }
   }
 }
 

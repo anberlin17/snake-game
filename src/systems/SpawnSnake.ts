@@ -9,9 +9,13 @@ class SpawnSnake extends System {
   }
 
   update(game: Game) {
-    game.ctx.fillStyle = '#555'
+    game.ctx.fillStyle = '#0b0b0b'
+    game.ctx.strokeStyle = '#0b0b0b'
+    game.ctx.lineWidth = 2
 
     const cellSize = game.getCellSize()
+    const borderSize = cellSize * 0.9
+    const blockSize = cellSize * 0.75
 
     const entity = ECS.queryEntity(['SnakeBody'])
     if (!entity) return
@@ -20,9 +24,14 @@ class SpawnSnake extends System {
     snakeBody.parts.forEach(part => {
       const { x, y } = game.getCoordOfCell(part.x, part.y)
 
-      game.ctx.strokeStyle = '#fff'
-      game.ctx.fillRect(x, y, cellSize, cellSize)
-      game.ctx.strokeRect(x, y, cellSize, cellSize)
+      {
+        const offset = (cellSize - blockSize) / 2
+        game.ctx.fillRect(x + offset, y + offset, blockSize, blockSize)
+      }
+      {
+        const offset = (cellSize - borderSize) / 2
+        game.ctx.strokeRect(x + offset, y + offset, borderSize, borderSize)
+      }
     })
   }
 }
