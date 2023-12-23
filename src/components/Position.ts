@@ -1,10 +1,10 @@
-import { Vector2D } from '../math'
+import { GridPosition } from '../types/movement'
 
-function Position({ x = 0, y = 0 } = {} as Vector2D) {
+function Position(value: GridPosition = { row: 0, col: 0 }) {
   return {
     name: 'Position',
-    x,
-    y
+    row: value.row,
+    col: value.col
   }
 }
 

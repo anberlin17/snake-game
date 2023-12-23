@@ -1,15 +1,13 @@
-import CollisionDetection from './CollisionDetection'
-import SnakeMovement from './SnakeMovement'
-import SpawnFood from './SpawnFood'
-import SpawnMap from './SpawnMap'
-import SpawnSnake from './SpawnSnake'
-import UserInput from './UserInput'
+import CollisionDetectionSystem from './CollisionDetectionSystem'
+import SnakeMovementSystem from './SnakeMovementSystem'
+import FoodRenderSystem from './FoodRenderSystem.ts'
+import SnakeRenderSystem from './SnakeRenderSystem.ts'
+import UserInputSystem from './UserInputSystem'
 
 export default {
-  CollisionDetection,
-  SnakeMovement,
-  SpawnFood,
-  SpawnMap,
-  SpawnSnake,
-  UserInput
+  CollisionDetectionSystem,
+  SnakeMovementSystem,
+  FoodRenderSystem,
+  SnakeRenderSystem,
+  UserInputSystem
 }

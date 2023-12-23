@@ -1,38 +1,30 @@
 import ECS from './ECS'
 import Systems from './systems'
 import Components from './components'
-import GUI from './modules/GUI'
+import UIBuilder from './modules/UIBuilder'
+import GameBoard from './modules/GameBoard'
+import ScorePanel from './ui/ScorePanel'
+import { GAME_FPS } from './const'
+import { setupCanvasSize } from './utils'
 
 import './style.scss'
 
 export default class Game {
   ctx: CanvasRenderingContext2D
-
-  GUI: GUI
-
-  #requestId: number
-  #fps: number
-  #tickInterval: number
-  #prevTimestamp: number
-
-  paused: boolean
-  fieldSize: number
+  timestamp: number
+  requestId: number
   score: number
   highScore: number
+  interval: number
+  prevTimestamp: number
 
-  constructor({ fps = 15, size = 21 } = {}) {
-    this.#fps = fps
-    this.#tickInterval = 1000 / this.#fps
-    this.#prevTimestamp = 0
+  UI: UIBuilder
+  GameBoard: GameBoard
 
-    this.GUI = new GUI()
-
-    this.paused = true
-    this.fieldSize = size
-    this.score = 0
+  constructor() {
+    this.interval = 1000 / GAME_FPS
+    this.prevTimestamp = 0
     this.start = this.start.bind(this)
-
-    this.updateHighScore(Number(localStorage.getItem('highScore')) ?? 0)
 
     let canvas = document.getElementById('canvas') as HTMLCanvasElement
     if (!canvas) {
@@ -48,120 +40,90 @@ export default class Game {
       root.appendChild(canvas)
     }
 
-    this.ctx = canvas.getContext('2d')
+    this.ctx = canvas.getContext('2d', { alpha: true })!
 
-    addEventListener('resize', () => {
-      this.ctx.canvas.height = canvas.clientHeight * devicePixelRatio
-      this.ctx.canvas.width = canvas.clientWidth * devicePixelRatio
+    setupCanvasSize(this.ctx)
+
+    this.GameBoard = new GameBoard(this, {
+      height: this.ctx.canvas.height * 0.85
     })
+    this.GameBoard.setPoint('CENTER')
 
-    dispatchEvent(new Event('resize'))
+    this.UI = new UIBuilder(this)
+
+    this.updateScore(0)
+    this.updateHighScore(Number(localStorage.getItem('highScore')) ?? 0)
   }
 
   create() {
     const snake = ECS.createEntity()
 
-    const middle = Math.floor(this.fieldSize / 2)
-    snake.addComponent(
-      Components.SnakeBody([
-        { x: middle, y: middle },
-        { x: middle, y: middle + 1 },
-        { x: middle, y: middle + 2 }
-      ])
-    )
+    {
+      const col = Math.floor(this.GameBoard.cols / 2)
+      const row = Math.floor(this.GameBoard.rows / 2)
+      snake.addComponent(
+        Components.SnakeBody([
+          { col, row },
+          { col, row: row + 1 },
+          { col, row: row + 2 }
+        ])
+      )
+    }
     snake.addComponent(Components.Velocity())
+    snake.addComponent(Components.Controlled())
 
-    ECS.schedule.add(new Systems.UserInput())
-    ECS.schedule.add(new Systems.SnakeMovement())
-    ECS.schedule.add(new Systems.CollisionDetection())
-    ECS.schedule.add(new Systems.SpawnMap())
-    ECS.schedule.add(new Systems.SpawnFood())
-    ECS.schedule.add(new Systems.SpawnSnake())
+    ECS.schedule.add(new Systems.UserInputSystem({ tickInterval: 1000 / 15 }))
+    ECS.schedule.add(new Systems.SnakeMovementSystem({ tickInterval: 1000 / 15 }))
+    ECS.schedule.add(new Systems.CollisionDetectionSystem())
+    ECS.schedule.add(new Systems.FoodRenderSystem())
+    ECS.schedule.add(new Systems.SnakeRenderSystem())
 
-    this.paused = false
     this.start()
   }
 
   start(timestamp = 0) {
-    this.#requestId = requestAnimationFrame(this.start)
+    this.timestamp = timestamp
+    this.requestId = requestAnimationFrame(this.start)
 
-    const elapsed = timestamp - this.#prevTimestamp
-    if (elapsed < this.#tickInterval) {
-      return
-    }
+    if (!this.isCurrentTick(this.interval, this.prevTimestamp)) return
+    this.prevTimestamp = timestamp
 
     this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height)
+
+    this.GameBoard.render(this)
+    this.UI.render(this)
 
     for (const system of ECS.schedule) {
       system.update(this)
     }
-
-    this.#prevTimestamp = timestamp
-  }
-
-  stop() {
-    if (this.score > this.highScore) {
-      this.GUI.updateHighScore(this.score)
-    }
-
-    this.pause()
-    this.GUI.showGamePopup(() => {
-      this.GUI.removeGamePopup()
-      this.reset()
-      this.create()
-    })
-  }
-
-  pause() {
-    this.paused = true
-    cancelAnimationFrame(this.#requestId)
   }
 
   reset() {
-    this.pause()
-
     ECS.entities.clear()
     ECS.schedule.clear()
 
     this.updateScore(0)
   }
 
+  isCurrentTick(interval: number, prevTimestamp: number): boolean {
+    return game.timestamp - prevTimestamp >= interval
+  }
+
   updateScore(value: number) {
+    const scorePanel = this.UI.get('scorePanel') as ScorePanel
+
     this.score = value
-    this.GUI.updateScore(value)
+    scorePanel.updateScore(value)
   }
 
   updateHighScore(value: number) {
+    const scorePanel = this.UI.get('scorePanel') as ScorePanel
+
     this.highScore = value
-    this.GUI.updateHighScore(value)
-  }
-
-  getCellSize() {
-    return this.ctx.canvas.width / this.fieldSize
-  }
-
-  getCoordOfCell(x: number, y: number) {
-    const cellSize = this.getCellSize()
-    return {
-      x: x * cellSize,
-      y: y * cellSize
-    }
-  }
-
-  getRandomCell() {
-    return Math.round(Math.random() * (this.fieldSize - 1))
-  }
-
-  getRandomPosition() {
-    return {
-      x: this.getRandomCell(),
-      y: this.getRandomCell()
-    }
+    scorePanel.updateHighScore(value)
+    localStorage.setItem('highScore', value.toString())
   }
 }
 
-const game = new Game({
-  fps: 15,
-  size: 21
-})
+const game = new Game()
 game.create()

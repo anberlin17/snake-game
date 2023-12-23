@@ -1,10 +1,10 @@
-import { Vector2D } from '../math'
+import { Velocity } from '../types/movement'
 
-function Velocity({ x = 0, y = 0 } = {} as Vector2D) {
+function Velocity(value: Velocity = { x: 0, y: 0 }) {
   return {
     name: 'Velocity',
-    x,
-    y
+    x: value.x,
+    y: value.y
   }
 }
 

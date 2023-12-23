@@ -5,55 +5,15 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Play:wght@400;700&family=Source+Code+Pro&display=swap"
+      rel="stylesheet"
+    />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
     <title>Snake</title>
   </head>
   <body>
-    <div class="overlay">
-      <div class="game-popup landscape-warning-popup">
-        <div class="game-popup__title">Rotate screen to portrait mode</div>
-      </div>
-    </div>
-    <div class="canvas-container">
-      <div class="game-score">
-        <div class="game-score__section">
-          <span class="game-score__score-label">Score:</span>
-          <span class="game-score__score" id="gameScore">0</span>
-        </div>
-        <div class="game-score__section">
-          <span class="game-score__score-label">High score:</span>
-          <span class="game-score__score" id="highGameScore">0</span>
-        </div>
-      </div>
-      <div class="game-popup" id="gameOverPopup">
-        <div class="game-popup__title">Game Over</div>
-        <button class="game-popup__button" id="startGameButton">Play again</button>
-      </div>
-      <canvas id="canvas"></canvas>
-    </div>
-    <div class="mobile-controls">
-      <div class="mobile-controls__button mobile-controls__button_up" id="controlUp">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="-8.5 0 32 32">
-          <path d="M7.75 16.063.062 8.375l3.719-3.594 11.063 11.094L3.5 27.188 0 23.719z" />
-        </svg>
-      </div>
-      <div class="mobile-controls__button mobile-controls__button_right" id="controlRight">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="-8.5 0 32 32">
-          <path d="M7.75 16.063.062 8.375l3.719-3.594 11.063 11.094L3.5 27.188 0 23.719z" />
-        </svg>
-      </div>
-      <div class="mobile-controls__button mobile-controls__button_down" id="controlDown">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="-8.5 0 32 32">
-          <path d="M7.75 16.063.062 8.375l3.719-3.594 11.063 11.094L3.5 27.188 0 23.719z" />
-        </svg>
-      </div>
-      <div class="mobile-controls__button mobile-controls__button_left" id="controlLeft">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="-8.5 0 32 32">
-          <path d="M7.75 16.063.062 8.375l3.719-3.594 11.063 11.094L3.5 27.188 0 23.719z" />
-        </svg>
-      </div>
-    </div>
+    <canvas id="canvas" width="1920" height="1080"></canvas>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

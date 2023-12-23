@@ -1,9 +1,9 @@
-import { Vector2D } from '../math'
+import { GridPosition } from '../types/movement'
 
-function SnakeBody(parts: Vector2D[] = []) {
+function SnakeBody(blocks: GridPosition[] = []) {
   return {
     name: 'SnakeBody',
-    parts
+    blocks
   }
 }
 

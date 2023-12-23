@@ -19,11 +19,24 @@ class ECS {
 
   static queryEntity(query: string[]) {
     for (const entity of ECS.entities) {
-      const hasAnyComponent = query.some(queriedComponent => entity.components.has(queriedComponent))
+      const hasAnyComponent = query.every(queriedComponent => entity.components.has(queriedComponent))
       if (hasAnyComponent) {
         return entity
       }
     }
+  }
+
+  static queryEntities(query: string[]) {
+    const entities: Entity[] = []
+
+    for (const entity of ECS.entities) {
+      const hasAnyComponent = query.every(queriedComponent => entity.components.has(queriedComponent))
+      if (hasAnyComponent) {
+        entities.push(entity)
+      }
+    }
+
+    return entities
   }
 }
 

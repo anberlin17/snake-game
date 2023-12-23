@@ -1,6 +1,6 @@
 type IComponent = Record<string, any>
 
-class Entity {
+export default class Entity {
   id: symbol
   components: Map<string, IComponent>
 
@@ -13,9 +13,15 @@ class Entity {
     this.components.set(component.name, { ...component, entity: this })
   }
 
+  getComponent<T>(component: string): T {
+    return this.components.get(component) as T
+  }
+
+  hasComponent(component: string) {
+    return this.components.has(component)
+  }
+
   removeComponent(component: string) {
     this.components.delete(component)
   }
 }
-
-export default Entity
