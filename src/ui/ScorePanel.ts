@@ -39,7 +39,7 @@ export default class ScorePanel extends UIElement {
     }
   }
 
-  showGamePopup(cb?: () => void) {
+  showGamePopup() {
     this.ctx.fillStyle = 'rgba(0,0,0,0.75)'
     this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height)
   }

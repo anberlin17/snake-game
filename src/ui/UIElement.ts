@@ -109,5 +109,5 @@ export default class UIElement {
     }
   }
 
-  render(game: Game) {}
+  render(_: Game) {}
 }

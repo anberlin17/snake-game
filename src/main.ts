@@ -24,7 +24,6 @@ export default class Game {
   constructor() {
     this.interval = 1000 / GAME_FPS
     this.prevTimestamp = 0
-    this.start = this.start.bind(this)
 
     let canvas = document.getElementById('canvas') as HTMLCanvasElement
     if (!canvas) {
@@ -53,9 +52,11 @@ export default class Game {
 
     this.updateScore(0)
     this.updateHighScore(Number(localStorage.getItem('highScore')) ?? 0)
+
+    this.loop = this.loop.bind(this)
   }
 
-  create() {
+  start() {
     const snake = ECS.createEntity()
 
     {
@@ -78,12 +79,12 @@ export default class Game {
     ECS.schedule.add(new Systems.FoodRenderSystem())
     ECS.schedule.add(new Systems.SnakeRenderSystem())
 
-    this.start()
+    this.loop()
   }
 
-  start(timestamp = 0) {
+  loop(timestamp = 0) {
     this.timestamp = timestamp
-    this.requestId = requestAnimationFrame(this.start)
+    this.requestId = requestAnimationFrame(this.loop)
 
     if (!this.isCurrentTick(this.interval, this.prevTimestamp)) return
     this.prevTimestamp = timestamp
@@ -126,4 +127,4 @@ export default class Game {
 }
 
 const game = new Game()
-game.create()
+game.start()

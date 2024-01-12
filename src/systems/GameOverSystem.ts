@@ -30,7 +30,7 @@ export default class GameOverSystem extends System {
 
     setTimeout(() => {
       game.reset()
-      game.create()
+      game.start()
     }, 1500)
   }
 }

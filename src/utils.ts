@@ -5,9 +5,9 @@ export function setupCanvasSize(ctx: CanvasRenderingContext2D) {
   ctx.canvas.height = fitSize * dpr
 
   addEventListener('resize', () => {
-    const scaleX = window.innerWidth / this.ctx.canvas.width
-    const scaleY = window.innerHeight / this.ctx.canvas.height
-    this.ctx.canvas.style.transform = `scale(${Math.min(scaleX, scaleY)}) translate(-50%,-50%)`
+    const scaleX = window.innerWidth / ctx.canvas.width
+    const scaleY = window.innerHeight / ctx.canvas.height
+    ctx.canvas.style.transform = `scale(${Math.min(scaleX, scaleY)}) translate(-50%,-50%)`
   })
 
   dispatchEvent(new Event('resize'))
